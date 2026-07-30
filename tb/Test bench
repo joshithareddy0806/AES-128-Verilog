@@ -1,0 +1,65 @@
+`timescale 1ns / 1ps
+
+module aes_encrypt_tb;
+
+    reg clk, rst, start, encrypt;
+    reg [127:0] data_in;
+    reg [127:0] key_seed;
+
+    wire [127:0] ciphertext;
+    wire done;
+
+    reg [127:0] enc_result, dec_result;
+
+    aes_128 uut (
+        .clk(clk),
+        .rst(rst),
+        .start(start),
+        .encrypt(encrypt),
+        .data_in(data_in),
+        .key_seed(key_seed),
+        .ciphertext(ciphertext),
+        .done(done)
+    );
+
+    // Clock
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    initial begin
+        rst = 0;
+        start = 0;
+        encrypt = 1;
+
+        key_seed = 128'h00112233445566778899AABBCCDDEEFF;
+        data_in  = key_seed;
+
+        #10 rst = 1;
+        #10 rst = 0;
+
+        // -------- ENCRYPT --------
+        #10 start = 1;
+        #10 start = 0;
+
+        wait(done);
+        enc_result = ciphertext;
+        $display("Derived Key          = %h", uut.derived_key);
+        $display("Encrypted Ciphertext = %h", enc_result);
+
+        // -------- DECRYPT --------
+        #20 encrypt = 0;
+        data_in = enc_result;
+
+        start = 1;
+        #10 start = 0;
+
+        wait(done);
+        dec_result = ciphertext;
+        $display("Decrypted Plaintext  = %h", dec_result);
+
+        #20 $finish;
+    end
+
+endmodule
