@@ -1,4 +1,4 @@
-# 🔐 AES-128 Encryption and Decryption using Verilog HDL
+# 🔐 AES-128 Encryption using Verilog HDL
 
 ## 📖 Overview
 
